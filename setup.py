@@ -14,8 +14,6 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with cartopy.  If not, see <http://www.gnu.org/licenses/>.
-
-
 """
 Distribution definition for Cartopy.
 
@@ -28,6 +26,7 @@ import fnmatch
 import os
 
 from Cython.Distutils import build_ext
+
 import numpy
 
 
@@ -126,7 +125,7 @@ class HeaderCheck(Command):
 
 
 setup(
-    name='Cartopy',
+    name='Cartopy3',
     version='0.6.x',
     url='http://github.com/SciTools/cartopy',
     author='Philip Elson',
@@ -149,6 +148,23 @@ setup(
                              ['io/srtm.json']
                  },
 
+    setup_requires=[
+        'setuptools>=0.6c11',
+        'Cython>=0.15.1',
+        'numpy>=1.6',
+    ],
+    install_requires=[
+        'setuptools>=0.6c11',
+        'Cython>=0.15.1',
+        'numpy>=1.6',
+        'scipy>=0.10.0',
+        'pyshp>=1.1.4', 
+        'shapely>=1.2.14', 
+    ],
+    tests_require=[
+        'nose>=1.2.1',
+        'pep8>=1.3.3',
+    ],
 
     # requires proj4 headers
     ext_modules=[
