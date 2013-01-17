@@ -148,7 +148,7 @@ setup(
       
     packages=find_package_tree('lib/cartopy', 'cartopy'),
     package_dir={'': 'lib'},
-    package_data={'Cartopy3': list(file_walk_relative('lib/cartopy/tests/mpl/baseline_images/',
+    package_data={'cartopy': list(file_walk_relative('lib/cartopy/tests/mpl/baseline_images/',
                                                      remove='lib/cartopy/')) +\
                              list(file_walk_relative('lib/cartopy/data/raster',
                                                      remove='lib/cartopy/')) +\
