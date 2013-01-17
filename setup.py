@@ -19,7 +19,16 @@ Distribution definition for Cartopy.
 
 """
 
-from distutils.core import setup, Command, Extension
+use_setuptools = False
+if use_setuptools:
+    try:
+        import setuptools
+        from setuptools  import setup, Command, Extension
+    except ImportError:
+        from distutils.core import setup, Command, Extension
+else:
+    from distutils.core import setup, Command, Extension
+
 from distutils.sysconfig import get_config_var
 from distutils.util import convert_path
 import fnmatch
@@ -123,6 +132,12 @@ class HeaderCheck(Command):
                 bad = target not in line
         return bad
 
+import sys
+print 'VERSION 3 Cartopy setup.py called : [{}]'.format(', '.join(sys.argv))
+show_vars = ['Command', 'Extension']
+#show_vars = ['setup', 'Command', 'Extension', 'get_config_var', 'convert_path']
+for varname in show_vars:
+    print varname,' from ',str(eval(varname))
 
 setup(
     name='Cartopy3',
@@ -133,7 +148,7 @@ setup(
       
     packages=find_package_tree('lib/cartopy', 'cartopy'),
     package_dir={'': 'lib'},
-    package_data={'cartopy': list(file_walk_relative('lib/cartopy/tests/mpl/baseline_images/',
+    package_data={'Cartopy3': list(file_walk_relative('lib/cartopy/tests/mpl/baseline_images/',
                                                      remove='lib/cartopy/')) +\
                              list(file_walk_relative('lib/cartopy/data/raster',
                                                      remove='lib/cartopy/')) +\

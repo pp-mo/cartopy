@@ -1,3 +1,3 @@
 # Extension source
-recursive-include lib/cartopy *.c *.cc *.cpp *.h *.pxd
+recursive-include lib/cartopy *.pyx *.pxd *.h
 
