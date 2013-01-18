@@ -20,21 +20,32 @@ Distribution definition for Cartopy.
 """
 
 use_setuptools = False
-if use_setuptools:
-    try:
-        import setuptools
-        from setuptools  import setup, Command, Extension
-    except ImportError:
-        from distutils.core import setup, Command, Extension
-else:
-    from distutils.core import setup, Command, Extension
+#if use_setuptools:
+#    try:
+#        import setuptools
+#        from setuptools  import setup, Command, Extension
+#    except ImportError:
+#        from distutils.core import setup, Command, Extension
+#else:
+#    from distutils.core import setup, Command, Extension
+
+from distutils.core import setup, Command, Extension
 
 from distutils.sysconfig import get_config_var
 from distutils.util import convert_path
 import fnmatch
 import os
 
+if use_setuptools:
+    try:
+        import setuptools
+        print "NOTE: setuptools replaced distutils."
+    except ImportError:
+        print "??Could not import setuptools.  Proceeding anyway..."
+
 from Cython.Distutils import build_ext
+print 'build_ext : ', build_ext
+print 'build_ext.__bases__ : ', build_ext.__bases__
 
 import numpy
 
