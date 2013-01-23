@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with cartopy.  If not, see <http://www.gnu.org/licenses/>.
 
+import warnings
+
 import matplotlib.pyplot as plt
 
 import cartopy.crs as ccrs
@@ -80,6 +82,54 @@ def test_gridliner():
     delta = 1.5e-2
     plt.subplots_adjust(left=0 + delta, right=1 - delta,
                         top=1 - delta, bottom=0 + delta)
+
+
+@ImageTesting(['gridliner_labels'])
+def test_grid_labels():
+    plt.figure(figsize=(8, 10))
+
+    crs_pc = ccrs.PlateCarree()
+    crs_merc = ccrs.Mercator()
+    crs_osgb = ccrs.OSGB()
+
+    ax = plt.subplot(3, 2, 1, projection=crs_pc)
+    ax.coastlines()
+    ax.gridlines(add_labels=True)
+
+    ax = plt.subplot(3, 2, 2, projection=crs_pc)
+    ax.coastlines()
+    with warnings.catch_warnings(record=True) as w:
+        ax.gridlines(crs=crs_merc, add_labels=True)
+        assert len(w) == 1
+        message = w[0].message
+        assert isinstance(message, UserWarning)
+        assert str(message).find('labelling cancelled') >= 0
+
+    ax = plt.subplot(3, 2, 3, projection=crs_merc)
+    ax.coastlines()
+    ax.gridlines(add_labels=True)
+
+    ax = plt.subplot(3, 2, 4, projection=crs_osgb)
+    ax.coastlines()
+    with warnings.catch_warnings(record=True) as w:
+        ax.gridlines(add_labels=True)
+        assert len(w) == 1
+        message = w[0].message
+        assert isinstance(message, UserWarning)
+        assert str(message).find('labelling cancelled') >= 0
+
+    ax = plt.subplot(3, 2, 5, projection=crs_pc)
+    ax.set_extent([-20, 10.0, 45.0, 70.0])
+    ax.coastlines()
+    ax.gridlines(add_labels=True)
+
+    ax = plt.subplot(3, 2, 6, projection=crs_merc)
+    ax.set_extent([-20, 10.0, 45.0, 70.0], crs=crs_pc)
+    ax.coastlines()
+    ax.gridlines(add_labels=True)
+
+    # stop them bumping into one another
+    plt.subplots_adjust(wspace=0.25, hspace=0.25)
 
 
 if __name__ == '__main__':

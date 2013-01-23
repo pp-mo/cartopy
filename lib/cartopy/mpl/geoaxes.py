@@ -775,20 +775,32 @@ class GeoAxes(matplotlib.axes.Axes):
 
         return result
 
-    def gridlines(self, crs=None, **kwargs):
+    def gridlines(self, crs=None, add_labels=False, **kwargs):
         """
         Automatically adds gridlines to the axes, in the given coordinate
         system, at draw time.
 
-        ``**kwargs`` - are passed through to the created
-                       :class:`matplotlib.collections.Collection`
-                       allowing control of colors and linewidths etc.
+        Kwargs:
+
+            * crs
+                The projection (grid) the lines are drawn on.
+                The default is :class:`cartopy.crs.PlateCarree`.
+
+            * add_labels
+                Label gridlines like axis ticks, around the edge.
+
+       Extra kwargs:
+
+            passed through to the created
+            :class:`matplotlib.collections.Collection`
+            allowing control of colors and linewidths etc.
 
         """
         if crs is None:
             crs = ccrs.PlateCarree()
         from cartopy.mpl.gridliner import Gridliner
-        gl = Gridliner(self, crs=crs, collection_kwargs=kwargs)
+        gl = Gridliner(
+            self, crs=crs, draw_labels=add_labels, collection_kwargs=kwargs)
         self._gridliners.append(gl)
         return gl
 
