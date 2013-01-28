@@ -128,7 +128,7 @@ def test_grid_labels():
     ax.coastlines()
     ax.gridlines(add_labels=True)
 
-    # stop them bumping into one another
+    # Increase margins between plots to stop them bumping into one another.
     plt.subplots_adjust(wspace=0.25, hspace=0.25)
 
 
