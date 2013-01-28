@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 
 from cartopy.tests.mpl import ImageTesting
+import matplotlib
 
 
 @ImageTesting(['gridliner1'])
@@ -86,6 +87,7 @@ def test_gridliner():
 
 @ImageTesting(['gridliner_labels'])
 def test_grid_labels():
+    warnings.warn( 'TEST_GRID_LABELS - matplotlib version='+matplotlib.__version__ )
     plt.figure(figsize=(8, 10))
 
     crs_pc = ccrs.PlateCarree()
@@ -130,7 +132,6 @@ def test_grid_labels():
 
     # Increase margins between plots to stop them bumping into one another.
     plt.subplots_adjust(wspace=0.25, hspace=0.25)
-
 
 if __name__ == '__main__':
     import nose
