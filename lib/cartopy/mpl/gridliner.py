@@ -143,22 +143,22 @@ class Gridliner(object):
                     h_align = 'center'
                     v_align = 'bottom' if upper_end else 'top'
                     tr_x = transform
-                    tr_y = ax.transAxes + \
-                        mtrans.ScaledTranslation(
-                            0.0,
-                            shift_dist_pixels * (1.0 / 72),
-                            ax.figure.dpi_scale_trans)
+                    tr_y = ax.transAxes # + \
+#                        mtrans.ScaledTranslation(
+#                            0.0,
+#                            shift_dist_pixels * (1.0 / 72),
+#                            ax.figure.dpi_scale_trans)
                 else:
                     y = value
                     x = 1.0 if upper_end else 0.0
                     v_align = 'center'
                     h_align = 'left' if upper_end else 'right'
                     tr_y = transform
-                    tr_x = ax.transAxes + \
-                        mtrans.ScaledTranslation(
-                            shift_dist_pixels * (1.0 / 72),
-                            0.0,
-                            ax.figure.dpi_scale_trans)
+                    tr_x = ax.transAxes # + \
+#                        mtrans.ScaledTranslation(
+#                            shift_dist_pixels * (1.0 / 72),
+#                            0.0,
+#                            ax.figure.dpi_scale_trans)
 
                 # Make a 'blended' transform for label text positioning.
                 # One coord is geographic, and the other a plain Axes
