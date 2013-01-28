@@ -88,7 +88,8 @@ def test_gridliner():
 @ImageTesting(['gridliner_labels'])
 def test_grid_labels():
     warnings.warn( 'TEST_GRID_LABELS - matplotlib version='+matplotlib.__version__ )
-    plt.figure(figsize=(8, 10))
+    myfig = plt.figure(figsize=(8, 10))
+    warnings.warn( 'TEST_GRID_LABELS - dpi={}'.format(myfig.dpi) )
 
     crs_pc = ccrs.PlateCarree()
     crs_merc = ccrs.Mercator()
