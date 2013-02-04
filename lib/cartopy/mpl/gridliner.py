@@ -15,15 +15,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with cartopy.  If not, see <http://www.gnu.org/licenses/>.
 
-import warnings
-
 import matplotlib
 import matplotlib.collections as mcollections
-import matplotlib.lines as mlines
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtrans
-import matplotlib.patches as mpatches
 import numpy
 
 import cartopy
@@ -49,7 +45,7 @@ class Gridliner(object):
             The :class:`cartopy.mpl.geoaxes.GeoAxes` object to be drawn on.
 
         * crs
-            The :class:`cartopy._crs.CRS` defining the coordinate system that
+            The :class:`cartopy.crs.CRS` defining the coordinate system that
             the gridlines are drawn in.
 
         * draw_labels
@@ -94,9 +90,9 @@ class Gridliner(object):
             transform = transform._as_mpl_transform(self.axes)
         return transform
 
-    def _make_label_text(self, value, axis, upper_end):
+    def _add_gridline_label(self, value, axis, upper_end):
         """
-        Make a Text artist to contain a gridline label.
+        Create a Text artist on our axes for a gridline label.
 
         Args:
 
@@ -148,13 +144,14 @@ class Gridliner(object):
         label_transform = mtrans.blended_transform_factory(
             x_transform=tr_x, y_transform=tr_y)
 
-        # Make a Text artist with these properties
-        return mtext.Text(
+        # Create and add a Text artist with these properties
+        text_artist = mtext.Text(
             x, y, '{:g}'.format(value),
             clip_on=False,
             verticalalignment=v_align,
             horizontalalignment=h_align,
             transform=label_transform)
+        self.axes.add_artist(text_artist)
 
     def do_gridlines(self, nx=None, ny=None, background_patch=None):
         """Create Artists for all visible elements and add to our Axes."""
@@ -222,11 +219,9 @@ class Gridliner(object):
             # Add text labels at each end of every gridline.
             for upper_end in (False, True):
                 for x in x_label_points:
-                    self.axes.add_artist(self._make_label_text(
-                        x, axis='x', upper_end=upper_end))
+                    self._add_gridline_label(x, axis='x', upper_end=upper_end)
                 for y in y_label_points:
-                    self.axes.add_artist(self._make_label_text(
-                        y, axis='y', upper_end=upper_end))
+                    self._add_gridline_label(y, axis='y', upper_end=upper_end)
 
     def get_domain(self, nx=None, ny=None, background_patch=None):
         """Returns x_range, y_range"""
