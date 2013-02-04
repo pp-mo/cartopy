@@ -219,24 +219,14 @@ class Gridliner(object):
             x_label_points = [x for x in x_ticks if x_lim[0] <= x <= x_lim[1]]
             y_label_points = [y for y in y_ticks if y_lim[0] <= y <= y_lim[1]]
 
-            # Add text labels for each end of every gridline.
-            label_texts = {}
-            label_texts['x_lo'] = [self._make_label_text(x, axis='x',
-                                                         upper_end=False)
-                                   for x in x_label_points]
-            label_texts['x_hi'] = [self._make_label_text(x, axis='x',
-                                                         upper_end=True)
-                                   for x in x_label_points]
-            label_texts['y_lo'] = [self._make_label_text(y, axis='y',
-                                                         upper_end=False)
-                                   for y in y_label_points]
-            label_texts['y_hi'] = [self._make_label_text(y, axis='y',
-                                                         upper_end=True)
-                                   for y in y_label_points]
-            # Add all the label texts to our Axes.
-            for textset in label_texts.values():
-                for text in textset:
-                    self.axes.add_artist(text)
+            # Add text labels at each end of every gridline.
+            for upper_end in (False, True):
+                for x in x_label_points:
+                    self.axes.add_artist(self._make_label_text(
+                        x, axis='x', upper_end=upper_end))
+                for y in y_label_points:
+                    self.axes.add_artist(self._make_label_text(
+                        y, axis='y', upper_end=upper_end))
 
     def get_domain(self, nx=None, ny=None, background_patch=None):
         """Returns x_range, y_range"""

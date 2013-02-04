@@ -85,7 +85,11 @@ def test_gridliner():
 
 
 class TestRegrid(unittest.TestCase):
+
     @ImageTesting(['gridliner_labels'], tolerance=0.003)
+    # Image matching tolerance relaxed here for cross-platform operation.
+    # Reference results created in RHEL6 64-bit did not match Ubuntu 32-bit.
+    # Very slight differences are visible in texts.  Exact reason unknown.
     def test_grid_labels(self):
         plt.figure(figsize=(8, 10))
 
@@ -97,6 +101,8 @@ class TestRegrid(unittest.TestCase):
         ax.coastlines()
         ax.gridlines(draw_labels=True)
 
+        # Check that adding labels to Mercator gridlines gives an error.
+        # (Currently can only label PlateCarree gridlines.)
         ax = plt.subplot(3, 2, 2, projection=crs_pc)
         ax.coastlines()
         with self.assertRaises(TypeError) as cm:
@@ -106,6 +112,8 @@ class TestRegrid(unittest.TestCase):
         ax.coastlines()
         ax.gridlines(draw_labels=True)
 
+        # Check that labelling the gridlines on an OSGB plot gives an error.
+        # (Currently can only draw these on PlateCarree or Mercator plots.)
         ax = plt.subplot(3, 2, 4, projection=crs_osgb)
         ax.coastlines()
         with self.assertRaises(TypeError) as cm:
