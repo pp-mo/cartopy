@@ -990,8 +990,9 @@ class Geostationary(Projection):
         super(Geostationary, self).__init__(proj4_params)
         # The maximum extent will be invalidated when the satellite
         # height is not set to the default value.
-        # TODO: Determine this value automatically.
-        self._max = 5.43e6
+        h = satellite_height
+        a = 6378137.0  # standard WGS84 major radius
+        self._max = h * math.atan(a / (a + h))
 
     @property
     def boundary(self):
