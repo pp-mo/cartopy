@@ -40,7 +40,6 @@ import warnings
 import weakref
 from xml.etree import ElementTree
 
-import numpy as np
 from PIL import Image
 import shapely.geometry as sgeom
 
@@ -79,14 +78,14 @@ METERS_PER_UNIT = {
     'urn:ogc:def:crs:OGC:1.3:CRS84': _WGS84_METERS_PER_UNIT,
 }
 
-_URN_TO_CRS = collections.OrderedDict({
-    'urn:ogc:def:crs:OGC:1.3:CRS84': ccrs.PlateCarree(),
-    'urn:ogc:def:crs:EPSG::4326': ccrs.PlateCarree(),
-    'urn:ogc:def:crs:EPSG::900913': ccrs.GOOGLE_MERCATOR,
-    'urn:ogc:def:crs:EPSG::27700': ccrs.OSGB(),
-    'urn:ogc:def:crs:EPSG::3031': ccrs.Stereographic(central_latitude=-90,
-                                                     true_scale_latitude=-71)
-})
+_URN_TO_CRS = collections.OrderedDict([
+    ('urn:ogc:def:crs:OGC:1.3:CRS84', ccrs.PlateCarree()),
+    ('urn:ogc:def:crs:EPSG::4326', ccrs.PlateCarree()),
+    ('urn:ogc:def:crs:EPSG::900913', ccrs.GOOGLE_MERCATOR),
+    ('urn:ogc:def:crs:EPSG::27700', ccrs.OSGB()),
+    ('urn:ogc:def:crs:EPSG::3031', ccrs.Stereographic(central_latitude=-90,
+                                                      true_scale_latitude=-71))
+])
 
 # XML namespace definitions
 _MAP_SERVER_NS = '{http://mapserver.gis.umn.edu/mapserver}'
@@ -153,7 +152,7 @@ def _target_extents(extent, requested_projection, available_projection):
     """
     # Start with the requested area.
     min_x, max_x, min_y, max_y = extent
-    target_box = shapely.geometry.box(min_x, min_y, max_x, max_y)
+    target_box = sgeom.box(min_x, min_y, max_x, max_y)
 
     # If the requested area (i.e. target_box) is bigger (or nearly bigger) than
     # the entire output requested_projection domain, then we erode the request
@@ -397,7 +396,7 @@ class WMTSRasterSource(RasterSource):
             matrix_set_name = find_projection(target_projection)
             if matrix_set_name is None:
                 # Search instead for a set in _any_ projection we can use.
-                for _, possible_projection in _URN_TO_CRS.iteritems():
+                for possible_projection in _URN_TO_CRS.values():
                     # Look for supported projections (in a preferred order).
                     matrix_set_name = find_projection(possible_projection)
                     if matrix_set_name is not None:
@@ -430,7 +429,7 @@ class WMTSRasterSource(RasterSource):
             wmts_extents = _target_extents(extent, projection, wmts_projection)
             # Bump resolution by a small factor, as a weak alternative to
             # delivering a minimum projected resolution.
-            # Genearally, the desired area is smaller than the enclosing extent
+            # Generally, the desired area is smaller than the enclosing extent
             # in projection space and may have varying scaling, so the ideal
             # solution is a hard problem !
             resolution_factor = 1.4
@@ -448,7 +447,7 @@ class WMTSRasterSource(RasterSource):
                                      (max_y - min_y) / height)
             else:
                 # X/Y orientation is arbitrary, so use a worst-case guess.
-                max_pixel_span = (min((max_x - min_x), (max_y - min_y))
+                max_pixel_span = (min(max_x - min_x, max_y - min_y)
                                   / max(width, height))
 
             # Fetch a suitable image and its actual extent.

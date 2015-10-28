@@ -190,10 +190,11 @@ class test_WMTSRasterSource(unittest.TestCase):
     def test_fetch_img_reprojected_twoparts(self):
         source = ogc.WMTSRasterSource(self.URI, self.layer_name)
         extent = [-10, 12, 48, 50]
-        # NB expect 2 results in this case.
-        im1, im2 = source.fetch_raster(ccrs.NorthPolarStereo(), extent,
-                                       (30, 30))
+        images = source.fetch_raster(ccrs.NorthPolarStereo(), extent, (30, 30))
 
+        # Check for 2 results in this case.
+        self.assertEqual(len(images), 2)
+        im1, im2 = images
         # Check image arrays is as expected (more or less).
         self.assertEqual(np.array(im1.image).shape, (42, 42, 4))
         self.assertEqual(np.array(im2.image).shape, (42, 42, 4))
