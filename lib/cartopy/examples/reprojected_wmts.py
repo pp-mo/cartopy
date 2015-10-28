@@ -21,8 +21,6 @@ and Atmospheric Administration (NOAA).
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 
-import cartopy.crs as ccrs
-
 
 def plot_city_lights():
     # Define resource for the NASA night-time illumination data.
