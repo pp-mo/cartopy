@@ -447,8 +447,8 @@ class WMTSRasterSource(RasterSource):
                                      (max_y - min_y) / height)
             else:
                 # X/Y orientation is arbitrary, so use a worst-case guess.
-                max_pixel_span = (min(max_x - min_x, max_y - min_y)
-                                  / max(width, height))
+                max_pixel_span = (min(max_x - min_x, max_y - min_y) /
+                                  max(width, height))
 
             # Fetch a suitable image and its actual extent.
             wmts_image, wmts_actual_extent = self._wmts_images(
