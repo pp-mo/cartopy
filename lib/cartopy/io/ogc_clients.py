@@ -35,12 +35,12 @@ import six
 import collections
 import io
 import math
-import numpy as np
 import warnings
 import weakref
 from xml.etree import ElementTree
 
 from PIL import Image
+import numpy as np
 import shapely.geometry as sgeom
 
 try:
