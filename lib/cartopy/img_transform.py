@@ -290,10 +290,7 @@ def regrid(array, source_x_coords, source_y_coords, source_cs, target_proj,
     try:
         kdtree = scipy.spatial.cKDTree(xyz, balanced_tree=False)
     except TypeError as err:
-        if err.message[-14:-1] == 'balanced_tree':
-            kdtree = scipy.spatial.cKDTree(xyz)
-        else:
-            raise
+        kdtree = scipy.spatial.cKDTree(xyz)
 
     distances, indices = kdtree.query(target_xyz, k=1)
     mask = np.isinf(distances)
