@@ -57,36 +57,38 @@ def xy_for_min_value_in_xy_region(x0, x1, y0, y1,
                                   values_function_of_xs_ys,
                                   nx_samples=5, ny_samples=5,
                                   depth=0):
-    if _DO_DEBUG:
-        print 'find :  x in ({}, {}), y in ({}, {})'.format(x0, x1, y0, y1)
-    # Sample at a fixed number of points to look for an improved minimum.
-    x_samples, y_samples = meshgrid_linspace_2d(x0, x1, y0, y1,
-                                                nx_samples, ny_samples)
-    samples = values_function_of_xs_ys(x_samples, y_samples)
+    done = False
+    while not done:
+        if _DO_DEBUG:
+            print 'find :  x in ({}, {}), y in ({}, {})'.format(x0, x1, y0, y1)
+        # Sample at a fixed number of points to look for an improved minimum.
+        x_samples, y_samples = meshgrid_linspace_2d(x0, x1, y0, y1,
+                                                    nx_samples, ny_samples)
+        samples = values_function_of_xs_ys(x_samples, y_samples)
 
-    # Find location of minimum in the sampled points.
-    i_min, j_min = argmin_2d(samples)
-    i_max, j_max = argmin_2d(-samples)
+        # Find location of minimum in the sampled points.
+        i_min, j_min = argmin_2d(samples)
+        i_max, j_max = argmin_2d(-samples)
 
-    # See if we have achieved any improvement to the minimum value.
+        # See if we have achieved any improvement to the minimum value.
+        if _DO_DEBUG:
+            print 'Difference : ', samples[j_max, i_max] - samples[j_min, i_min]
+        # Recurse into a region around the location of the current best.
+        # N.B. this is tail recursion, so could be looped ...
+        j0, j1 = max(0, j_min - 1), min(ny_samples - 1, j_min + 1)
+        i0, i1 = max(0, i_min - 1), min(nx_samples - 1, i_min + 1)
+        next_x0, next_x1 = x_samples[0, i0], x_samples[0, i1]
+        next_y0, next_y1 = y_samples[j0, 0], y_samples[j1, 0]
+        done = (((next_x0 < x0 or next_x1 > x1 or
+                  next_y0 < y0 or next_y1 > y1) or
+                 (next_x0 <= x0) and next_x1 >= x1 and
+                 next_y0 <= y0 and next_y1 >= y1))
+        x0, x1, y0, y1 = next_x0, next_x1, next_y0, next_y1
+        depth = depth + 1
+
+    result = 0.5 * (x0 + x1), 0.5 * (y0 + y1)
     if _DO_DEBUG:
-        print 'Difference : ', samples[j_max, i_max] - samples[j_min, i_min]
-    # Recurse into a region around the location of the current best.
-    # N.B. this is tail recursion, so could be looped ...
-    j0, j1 = max(0, j_min - 1), min(ny_samples - 1, j_min + 1)
-    i0, i1 = max(0, i_min - 1), min(nx_samples - 1, i_min + 1)
-    next_x0, next_x1 = x_samples[0, i0], x_samples[0, i1]
-    next_y0, next_y1 = y_samples[j0, 0], y_samples[j1, 0]
-    if (((next_x0 < x0 or next_x1 > x1 or next_y0 < y0 or next_y1 > y1) or
-        (next_x0 <= x0) and next_x1 >= x1 and
-        next_y0 <= y0 and next_y1 >= y1)):
-            result = 0.5 * (x0 + x1), 0.5 * (y0 + y1)
-            if _DO_DEBUG:
-                print 'depth = ', depth
-    else:
-        result = xy_for_min_value_in_xy_region(
-            next_x0, next_x1, next_y0, next_y1,
-            values_function_of_xs_ys, depth=depth+1)
+        print 'depth = ', depth
 
     return result
 
