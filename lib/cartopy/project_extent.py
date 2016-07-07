@@ -36,9 +36,9 @@ def transform_xy_arrays(crs_from, x, y, crs_to):
 
 
 def meshgrid_linspace_2d(x_min, x_max, y_min, y_max, nx, ny):
-    x_pts = np.linspace(x_min, x_max_x, nx)
-    y_pts = np.linspace(y_min, y_max_x, ny)
-    xs, ys = np.meshgrid(src_x_pts, src_y_pts)
+    x_pts = np.linspace(x_min, x_max, nx)
+    y_pts = np.linspace(y_min, y_max, ny)
+    xs, ys = np.meshgrid(x_pts, y_pts)
     return xs, ys
 
 
