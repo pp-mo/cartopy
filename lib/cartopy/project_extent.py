@@ -10,8 +10,11 @@ CURRENT STATUS:
 notional, untested.
 
 """
-
 import numpy as np
+
+
+_DO_DEBUG = True
+#_DO_DEBUG = False
 
 
 def transform_xy_arrays(crs_from, x, y, crs_to):
@@ -31,6 +34,8 @@ def transform_xy_arrays(crs_from, x, y, crs_to):
         x, y :  Arrays of locations defined in 'crs_to'.
 
     """
+    x = np.asarray(x)
+    y = np.asarray(y)
     pts = crs_to.transform_points(crs_from, x, y)
     return pts[..., 0], pts[..., 1]
 
@@ -51,7 +56,9 @@ def argmin_2d(array):
 def xy_for_min_value_in_xy_region(x0, x1, y0, y1,
                                   values_function_of_xs_ys,
                                   nx_samples=5, ny_samples=5,
-                                  current_min_value=None):
+                                  depth=0):
+    if _DO_DEBUG:
+        print 'find :  x in ({}, {}), y in ({}, {})'.format(x0, x1, y0, y1)
     # Sample at a fixed number of points to look for an improved minimum.
     x_samples, y_samples = meshgrid_linspace_2d(x0, x1, y0, y1,
                                                 nx_samples, ny_samples)
@@ -59,23 +66,27 @@ def xy_for_min_value_in_xy_region(x0, x1, y0, y1,
 
     # Find location of minimum in the sampled points.
     i_min, j_min = argmin_2d(samples)
+    i_max, j_max = argmin_2d(-samples)
 
     # See if we have achieved any improvement to the minimum value.
-    new_min_value = samples[j_min, i_min]
-    if current_min_value is not None and new_min_value >= current_min_value:
-        # Converged to within precision, so we are done.
-        result = x_samples[i_min], y_samples[j_min]
+    if _DO_DEBUG:
+        print 'Difference : ', samples[j_max, i_max] - samples[j_min, i_min]
+    # Recurse into a region around the location of the current best.
+    # N.B. this is tail recursion, so could be looped ...
+    j0, j1 = max(0, j_min - 1), min(ny_samples - 1, j_min + 1)
+    i0, i1 = max(0, i_min - 1), min(nx_samples - 1, i_min + 1)
+    next_x0, next_x1 = x_samples[0, i0], x_samples[0, i1]
+    next_y0, next_y1 = y_samples[j0, 0], y_samples[j1, 0]
+    if (((next_x0 < x0 or next_x1 > x1 or next_y0 < y0 or next_y1 > y1) or
+        (next_x0 <= x0) and next_x1 >= x1 and
+        next_y0 <= y0 and next_y1 >= y1)):
+            result = 0.5 * (x0 + x1), 0.5 * (y0 + y1)
+            if _DO_DEBUG:
+                print 'depth = ', depth
     else:
-        # Recurse into a region around the location of the current best.
-        # N.B. this is tail recursion, so could be looped ...
-        j0, j1 = max(0, j_min - 1), min(ny_samples - 1, j_min + 1)
-        i0, i1 = max(0, i_min - 1), min(nx_samples - 1, i_min + 1)
-        next_x0, next_x1 = x_samples[i0], x_samples[i1]
-        next_y0, next_y1 = x_samples[j0], x_samples[j1]
         result = xy_for_min_value_in_xy_region(
             next_x0, next_x1, next_y0, next_y1,
-            values_function_of_xs_ys,
-            current_min_value=new_min_value)
+            values_function_of_xs_ys, depth=depth+1)
 
     return result
 
@@ -98,6 +109,7 @@ def projected_extent(source_coord_system,
 
     """
     # Tweak to allow passing Iris coord systems :  Probably need removing.
+    src_crs, tgt_crs = source_coord_system, target_coord_system
     if hasattr(src_crs, 'as_cartopy_crs'):
         src_crs = source_coord_system.as_cartopy_crs()
     if hasattr(tgt_crs, 'as_cartopy_crs'):
@@ -135,7 +147,8 @@ def projected_extent(source_coord_system,
 
     # Calculate minimum target-cs x coordinate value.
     src_x, src_y = xy_for_min(target_x_coord_positive_function)
-    tgt_x_min = transform_xy_arrays(src_crs, [src_x], [src_y], tgt_crs)[0][0]
+    tgt_x_min = transform_xy_arrays(
+        src_crs, [src_x], [src_y], tgt_crs)[0][0]
 
     # Calculate maximum target-cs x coordinate value.
     src_x, src_y = xy_for_min(target_x_coord_negative_function)
@@ -150,3 +163,26 @@ def projected_extent(source_coord_system,
     tgt_y_max = transform_xy_arrays(src_crs, [src_x], [src_y], tgt_crs)[1][0]
 
     return tgt_x_min, tgt_x_max, tgt_y_min, tgt_y_max
+
+
+def do_test():
+    import cartopy.crs as ccrs
+    crs_latlon = ccrs.PlateCarree()
+
+    # Define a source region defined in rotated-pole coords.
+    pole_lat = 53.4
+    pole_lon = -173.2
+    crs_rotated = ccrs.RotatedPole(
+        pole_longitude=pole_lon, pole_latitude=pole_lat)
+    x0, x1 = -60.0, 60.0
+    y0, y1 = -45.0, 20.0
+    xx0, xx1, yy0, yy1 = projected_extent(
+        source_coord_system=crs_rotated,
+        source_min_x=x0, source_max_x=x1,
+        source_min_y=y0, source_max_y=y1,
+        target_coord_system=crs_latlon)
+    print xx0, xx1, yy0, yy1
+
+
+if __name__ == '__main__':
+    do_test()
